@@ -1,0 +1,20 @@
+# ML-stack dependencies must move together to avoid C-API mismatch
+mediapipe==0.10.14
+opencv-python==4.10.0.84
+opencv-contrib-python==4.10.0.84
+numpy==1.26.4
+pandas==2.2.2
+scipy==1.13.1
+scikit-learn==1.5.1
+joblib==1.4.2
+
+# Application dependencies
+pyttsx3==2.90
+gTTS==2.5.1
+pyspellchecker==0.8.1
+streamlit==1.37.0
+streamlit-webrtc==0.47.7
+av==12.3.0
+Pillow==10.4.0
+deep-translator==1.11.4
+SpeechRecognition==3.11.0

@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+.env
+venv/
+.venv/
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Data files that shouldn't bake into the image
+# (they're volume-mounted at runtime instead)
+data/processed/*.csv
+data/raw/
+
+# Models (volume-mounted at runtime)
+models/*.joblib
+
+# Streamlit runtime state
+.streamlit/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Jupyter
+*.ipynb
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# Temp
+smoke_test.py

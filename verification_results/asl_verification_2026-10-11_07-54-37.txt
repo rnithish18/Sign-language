@@ -1,0 +1,45 @@
+SignBridge — ASL Label Verification
+Generated: 2026-10-11 07:54:37
+Total labels: 36  |  Tested: 0  |  PASS: 0  FAIL: 0  SKIP: 0
+
+Label                Result  Misrecognised as
+-------------------------------------------------------
+A                    PENDING  misrecognised_as=—
+B                    PENDING  misrecognised_as=—
+C                    PENDING  misrecognised_as=—
+D                    PENDING  misrecognised_as=—
+E                    PENDING  misrecognised_as=—
+F                    PENDING  misrecognised_as=—
+G                    PENDING  misrecognised_as=—
+H                    PENDING  misrecognised_as=—
+I                    PENDING  misrecognised_as=—
+J                    PENDING  misrecognised_as=—
+K                    PENDING  misrecognised_as=—
+L                    PENDING  misrecognised_as=—
+M                    PENDING  misrecognised_as=—
+N                    PENDING  misrecognised_as=—
+O                    PENDING  misrecognised_as=—
+P                    PENDING  misrecognised_as=—
+Q                    PENDING  misrecognised_as=—
+R                    PENDING  misrecognised_as=—
+S                    PENDING  misrecognised_as=—
+T                    PENDING  misrecognised_as=—
+U                    PENDING  misrecognised_as=—
+V                    PENDING  misrecognised_as=—
+W                    PENDING  misrecognised_as=—
+X                    PENDING  misrecognised_as=—
+Y                    PENDING  misrecognised_as=—
+Z                    PENDING  misrecognised_as=—
+BACKSPACE            PENDING  misrecognised_as=—
+CLEAR                PENDING  misrecognised_as=—
+SPACE                PENDING  misrecognised_as=—
+SPEAK                PENDING  misrecognised_as=—
+PHRASE_HELP          PENDING  misrecognised_as=—
+PHRASE_NO            PENDING  misrecognised_as=—
+PHRASE_THANK_YOU     PENDING  misrecognised_as=—
+PHRASE_WASHROOM      PENDING  misrecognised_as=—
+PHRASE_WATER         PENDING  misrecognised_as=—
+PHRASE_YES           PENDING  misrecognised_as=—
+
+No labels tested.
+(Session was aborted early — remaining labels not tested.)

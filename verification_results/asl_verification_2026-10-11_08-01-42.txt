@@ -1,0 +1,44 @@
+SignBridge — ASL Label Verification
+Generated: 2026-10-11 08:01:42
+Total labels: 36  |  Tested: 36  |  PASS: 0  FAIL: 36  SKIP: 0
+
+Label                Result  Misrecognised as
+-------------------------------------------------------
+A                    FAIL    misrecognised_as=—
+B                    FAIL    misrecognised_as=—
+C                    FAIL    misrecognised_as=—
+D                    FAIL    misrecognised_as=—
+E                    FAIL    misrecognised_as=—
+F                    FAIL    misrecognised_as=—
+G                    FAIL    misrecognised_as=—
+H                    FAIL    misrecognised_as=—
+I                    FAIL    misrecognised_as=—
+J                    FAIL    misrecognised_as=—
+K                    FAIL    misrecognised_as=A
+L                    FAIL    misrecognised_as=—
+M                    FAIL    misrecognised_as=—
+N                    FAIL    misrecognised_as=—
+O                    FAIL    misrecognised_as=—
+P                    FAIL    misrecognised_as=—
+Q                    FAIL    misrecognised_as=—
+R                    FAIL    misrecognised_as=—
+S                    FAIL    misrecognised_as=—
+T                    FAIL    misrecognised_as=—
+U                    FAIL    misrecognised_as=—
+V                    FAIL    misrecognised_as=—
+W                    FAIL    misrecognised_as=—
+X                    FAIL    misrecognised_as=—
+Y                    FAIL    misrecognised_as=—
+Z                    FAIL    misrecognised_as=—
+BACKSPACE            FAIL    misrecognised_as=—
+CLEAR                FAIL    misrecognised_as=—
+SPACE                FAIL    misrecognised_as=—
+SPEAK                FAIL    misrecognised_as=—
+PHRASE_HELP          FAIL    misrecognised_as=—
+PHRASE_NO            FAIL    misrecognised_as=—
+PHRASE_THANK_YOU     FAIL    misrecognised_as=—
+PHRASE_WASHROOM      FAIL    misrecognised_as=—
+PHRASE_WATER         FAIL    misrecognised_as=—
+PHRASE_YES           FAIL    misrecognised_as=—
+
+PASS rate (tested): 0/36 = 0%

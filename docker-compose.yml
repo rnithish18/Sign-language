@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  signbridge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: signbridge:latest
+    container_name: signbridge
+    ports:
+      - "8501:8501"
+    volumes:
+      # Persist trained models and collected data outside the container
+      - ./models:/app/models
+      - ./data:/app/data
+      # Persist per-user learning progress
+      - signbridge_progress:/app/data/learner_progress.json
+    environment:
+      - PYTHONPATH=/app
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # Optional: run the CLI training pipeline (not a long-running service)
+  train:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: signbridge:latest
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
+    environment:
+      - PYTHONPATH=/app
+    entrypoint: ["python", "-m", "src.train_model"]
+    command: ["--language", "ASL"]
+    profiles:
+      - tools  # only runs with: docker compose --profile tools run train
+
+volumes:
+  signbridge_progress:
