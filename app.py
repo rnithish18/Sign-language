@@ -1,15 +1,17 @@
-"""
-app.py
-------
-SignBridge Streamlit application — dark-theme UI matching the design mockup.
+# app.py
+# ------
+# SignBridge Streamlit application — dark-theme UI matching the design mockup.
+#
+# Two modes selectable via sidebar toggle:
+#   1. Translate  - real-time sign -> text -> speech
+#   2. Learn      - guided lessons with instant feedback and progress tracking
+#
+# Run:
+#     streamlit run app.py
 
-Two modes selectable via sidebar toggle:
-  1. Translate  - real-time sign -> text -> speech
-  2. Learn      - guided lessons with instant feedback and progress tracking
+import streamlit as st
 
-Run:
-    streamlit run app.py
-"""
+st.set_page_config(page_title="SignBridge", page_icon="🤟", layout="wide")
 
 import logging
 import threading
@@ -53,7 +55,6 @@ from utils.user_profiles import UserProfileManager, sanitize_username, validate_
 # ---------------------------------------------------------------------------
 # Page config + global CSS (dark theme, large text, high contrast)
 # ---------------------------------------------------------------------------
-st.set_page_config(page_title="SignBridge", page_icon="🤟", layout="wide")
 
 st.markdown("""
 <style>
