@@ -4,6 +4,10 @@ __pycache__/
 data/raw/*
 data/processed/*.csv
 models/*.joblib
+!models/signbridge_asl_model.joblib
+!models/signbridge_asl_labels.joblib
+!models/signbridge_isl_model.joblib
+!models/signbridge_isl_labels.joblib
 data/learner_progress.json
 .DS_Store
 .venv_clean/
