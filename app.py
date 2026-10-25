@@ -374,18 +374,17 @@ div:has(> .quick-actions-marker) + div [data-testid="column"] button:hover {
 """, unsafe_allow_html=True)
 
 def _get_rtc_configuration() -> RTCConfiguration:
-    """Return STUN configuration if reachable, or empty iceServers fallback for offline/localhost."""
-    try:
-        import socket
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.settimeout(0.5)
-        ip = socket.gethostbyname("stun.l.google.com")
-        s.sendto(b"\x00\x01\x00\x00\x21\x12\xa4\x42\x12\x34\x56\x78\x9a\xbc\xde\xf0\x12\x34\x56\x78", (ip, 19302))
-        s.recvfrom(256)
-        s.close()
-        return RTCConfiguration({"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]})
-    except Exception:
-        return RTCConfiguration({"iceServers": []})
+    """Return reliable public STUN servers for WebRTC NAT traversal."""
+    return RTCConfiguration(
+        {
+            "iceServers": [
+                {"urls": ["stun:stun.l.google.com:19302"]},
+                {"urls": ["stun:stun1.l.google.com:19302"]},
+                {"urls": ["stun:stun2.l.google.com:19302"]},
+                {"urls": ["stun:stun.cloudflare.com:3478"]},
+            ]
+        }
+    )
 
 
 RTC_CONFIGURATION = _get_rtc_configuration()
