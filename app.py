@@ -1,4 +1,3 @@
-import logging
 """
 app.py
 ------
@@ -12,6 +11,7 @@ Run:
     streamlit run app.py
 """
 
+import logging
 import threading
 import time
 from collections import deque
