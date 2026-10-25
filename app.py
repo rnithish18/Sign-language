@@ -23,7 +23,6 @@ from typing import Optional
 import av
 import cv2
 import numpy as np
-import streamlit as st
 from streamlit_webrtc import RTCConfiguration, WebRtcMode, webrtc_streamer
 
 from src.auto_typer import AutoTyper

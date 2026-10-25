@@ -21,8 +21,11 @@ Structure of the JSON file:
 """
 
 import json
+import logging
 import os
 import threading
+
+logger = logging.getLogger(__name__)
 from typing import Dict
 
 _LOCK = threading.Lock()
@@ -43,10 +46,13 @@ class ProgressStore:
         return {"users": {}}
 
     def _save(self):
-        os.makedirs(os.path.dirname(self.path), exist_ok=True)
-        with _LOCK:
-            with open(self.path, "w") as f:
-                json.dump(self._data, f, indent=2)
+        try:
+            os.makedirs(os.path.dirname(self.path), exist_ok=True)
+            with _LOCK:
+                with open(self.path, "w") as f:
+                    json.dump(self._data, f, indent=2)
+        except OSError as exc:
+            logger.warning("Failed to save progress store to %s: %s", self.path, exc)
 
     def _user_lang(self, username: str, language: str) -> dict:
         users = self._data.setdefault("users", {})

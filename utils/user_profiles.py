@@ -13,10 +13,13 @@ extended with a top-level "profiles" key for preferences.
 """
 
 import json
+import logging
 import os
 import re
 import threading
 from typing import Dict, List, Optional
+
+logger = logging.getLogger(__name__)
 
 _LOCK = threading.Lock()
 
@@ -68,14 +71,17 @@ class UserProfileManager:
         return {"users": {}, "profiles": {}}
 
     def _save(self):
-        os.makedirs(os.path.dirname(self.path), exist_ok=True)
-        with _LOCK:
-            # Re-read before writing to avoid stomping concurrent writes
-            on_disk = self._load()
-            on_disk.update(self._data)
-            with open(self.path, "w") as f:
-                json.dump(on_disk, f, indent=2)
-        self._data = self._load()
+        try:
+            os.makedirs(os.path.dirname(self.path), exist_ok=True)
+            with _LOCK:
+                # Re-read before writing to avoid stomping concurrent writes
+                on_disk = self._load()
+                on_disk.update(self._data)
+                with open(self.path, "w") as f:
+                    json.dump(on_disk, f, indent=2)
+            self._data = self._load()
+        except OSError as exc:
+            logger.warning("Failed to save user profiles to %s: %s", self.path, exc)
 
     # ------------------------------------------------------------------
     # User registry

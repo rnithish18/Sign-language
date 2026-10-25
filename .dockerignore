@@ -18,12 +18,7 @@ venv/
 htmlcov/
 
 # Data files that shouldn't bake into the image
-# (they're volume-mounted at runtime instead)
-data/processed/*.csv
 data/raw/
-
-# Models (volume-mounted at runtime)
-models/*.joblib
 
 # Streamlit runtime state
 .streamlit/

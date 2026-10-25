@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxrender1 \
     ffmpeg \
     curl \
+    espeak \
     && rm -rf /var/lib/apt/lists/*
 
 # Install python dependencies
@@ -28,4 +29,4 @@ COPY . .
 EXPOSE 8501
 
 # Run Streamlit with dynamic $PORT binding for Render and other cloud providers
-CMD ["sh", "-c", "streamlit run app.py --server.port=${PORT:-8501} --server.address=0.0.0.0 --server.enableCORS=true"]
+CMD ["sh", "-c", "streamlit run app.py --server.port=${PORT:-8501} --server.address=0.0.0.0 --server.headless=true --server.enableCORS=false --server.enableXsrfProtection=false"]

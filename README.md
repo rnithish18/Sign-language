@@ -48,6 +48,35 @@ source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+## Cloud Deployment & WebRTC TURN Configuration
+
+When hosting SignBridge on cloud platforms (such as Streamlit Community Cloud), peer-to-peer WebRTC connections behind symmetric NATs and firewalls require a TURN relay server. 
+
+SignBridge reads ICE/TURN credentials dynamically from `st.secrets` (configured in Streamlit Cloud Dashboard under **App Settings -> Secrets**):
+
+### Option 1: Metered.ca (Free 50 GB/month)
+```toml
+METERED_API_KEY = "your_metered_api_key"
+METERED_APP_NAME = "your_app_name"  # Optional, if using a custom subdomain
+```
+
+### Option 2: Twilio Network Traversal
+```toml
+TWILIO_ACCOUNT_SID = "your_twilio_account_sid"
+TWILIO_AUTH_TOKEN = "your_twilio_auth_token"
+```
+
+### Option 3: Custom ICE Servers Array
+```toml
+ice_servers = [
+  { urls = ["stun:stun.l.google.com:19302"] },
+  { urls = ["turn:your.turn.server:3478"], username = "user", credential = "pwd" }
+]
+```
+
+If no secrets are defined, SignBridge automatically falls back to public Google STUN (`stun:stun.l.google.com:19302`), which works out-of-the-box for local testing.
+
+
 > [!NOTE]
 > If you hit `scipy`/`numpy` import errors (like `TypeError` involving `dfitpack_int`), delete your venv completely and reinstall from `requirements.txt` in a fresh, clean environment. The ML stack dependencies must be pinned exactly together to avoid C-API mismatch.
 
