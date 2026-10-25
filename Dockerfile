@@ -25,6 +25,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project files
 COPY . .
 
+# Create empty secrets file so Streamlit doesn't show 'No secrets files found' banner
+RUN mkdir -p .streamlit && touch .streamlit/secrets.toml
+
 # Expose Streamlit default port
 EXPOSE 8501
 

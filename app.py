@@ -26,6 +26,29 @@ import cv2
 import numpy as np
 from streamlit_webrtc import RTCConfiguration, WebRtcMode, webrtc_streamer
 
+# Patch aiortc to handle video/rtx retransmission packets without crashing
+try:
+    import aiortc.codecs
+    import aiortc.rtcrtpreceiver
+
+    _orig_get_decoder = aiortc.codecs.get_decoder
+
+    class _RtxDummyDecoder:
+        def decode(self, encoded_frame):
+            return []
+
+    def _safe_get_decoder(codec):
+        mime = getattr(codec, "mimeType", "").lower()
+        name = getattr(codec, "name", "").lower()
+        if mime in ("video/rtx", "audio/rtx", "rtx") or name == "rtx":
+            return _RtxDummyDecoder()
+        return _orig_get_decoder(codec)
+
+    aiortc.codecs.get_decoder = _safe_get_decoder
+    aiortc.rtcrtpreceiver.get_decoder = _safe_get_decoder
+except Exception as _patch_err:
+    pass
+
 from src.auto_typer import AutoTyper
 from src.config import (
     DEFAULT_LANGUAGE, DEFAULT_OUTPUT_LANGUAGE, PHRASE_LABELS, PHRASE_GESTURES,
