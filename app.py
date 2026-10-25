@@ -1,3 +1,4 @@
+import logging
 """
 app.py
 ------
@@ -374,12 +375,51 @@ div:has(> .quick-actions-marker) + div [data-testid="column"] button:hover {
 """, unsafe_allow_html=True)
 
 def _get_rtc_configuration() -> RTCConfiguration:
-    """Return WebRTC configuration, using custom ICE servers from secrets if provided, or Google STUN."""
+    """Return WebRTC configuration with TURN support if secrets are configured, or Google STUN fallback."""
+    secrets = {}
     try:
-        if "ice_servers" in st.secrets:
-            return RTCConfiguration({"iceServers": st.secrets["ice_servers"]})
+        secrets = dict(st.secrets)
+    except Exception:
+        secrets = {}
+
+    # 1. Direct ice_servers list in st.secrets
+    try:
+        if "ice_servers" in secrets:
+            return RTCConfiguration({"iceServers": secrets["ice_servers"]})
     except Exception:
         pass
+
+    # 2. Metered.ca TURN (Free 50 GB/month)
+    try:
+        if "METERED_API_KEY" in secrets:
+            import urllib.request, json
+            app_name = str(secrets.get("METERED_APP_NAME", "")).strip()
+            api_key = str(secrets["METERED_API_KEY"]).strip()
+            url = (
+                f"https://{app_name}.metered.live/api/v1/turn/credentials?apiKey={api_key}"
+                if app_name
+                else f"https://metered.live/api/v1/turn/credentials?apiKey={api_key}"
+            )
+            req = urllib.request.Request(url, headers={"User-Agent": "SignBridge"})
+            with urllib.request.urlopen(req, timeout=4) as resp:
+                servers = json.loads(resp.read().decode())
+                if isinstance(servers, list) and servers:
+                    return RTCConfiguration({"iceServers": servers})
+    except Exception as exc:
+        logging.warning("Metered TURN credentials fetch failed: %s", exc)
+
+    # 3. Twilio TURN
+    try:
+        if "TWILIO_ACCOUNT_SID" in secrets and "TWILIO_AUTH_TOKEN" in secrets:
+            from twilio.rest import Client
+            client = Client(secrets["TWILIO_ACCOUNT_SID"], secrets["TWILIO_AUTH_TOKEN"])
+            token = client.tokens.create()
+            if token and token.ice_servers:
+                return RTCConfiguration({"iceServers": token.ice_servers})
+    except Exception as exc:
+        logging.warning("Twilio TURN credentials fetch failed: %s", exc)
+
+    # 4. Fallback: Google public STUN
     return RTCConfiguration(
         {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
     )

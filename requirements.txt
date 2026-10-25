@@ -17,3 +17,4 @@ av==12.3.0
 Pillow==10.4.0
 deep-translator==1.11.4
 SpeechRecognition==3.11.0
+twilio>=9.0.0
