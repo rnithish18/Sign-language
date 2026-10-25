@@ -164,14 +164,14 @@ def print_report(
     print("=" * 60)
     print("  SignBridge - Held-out Test Set Evaluation")
     print("=" * 60)
+    print(f"  Result        : {n_eval} of {len(results)} images detected ({n_corr} of {n_eval} correct when detected)")
     print(f"  Total images  : {len(results)}")
+    print(f"  Detected      : {n_eval} of {len(results)}")
+    print(f"  Undetected    : {len(undetected)} of {len(results)} (no hand detected)")
     print(f"  Unmapped      : {len(unmapped)}  "
           f"({', '.join(r['expected'] for r in unmapped) or '—'})")
-    print(f"  Undetected    : {len(undetected)}  "
-          f"(no hand found; excluded from accuracy)")
-    print(f"  Evaluated     : {n_eval}")
-    print(f"  Correct       : {n_corr}")
-    print(f"  Accuracy      : {n_corr}/{n_eval} = {acc:.1f}%")
+    print(f"  Correct       : {n_corr} of {n_eval} detected")
+    print(f"  Accuracy note : Reported strictly as '{n_eval} of {len(results)} images detected' (not headline 100%)")
     print()
 
     if wrong:

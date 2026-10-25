@@ -1,51 +1,179 @@
 {
   "language": "ASL",
-  "data_source": "public_dataset",
   "synthetic": false,
+  "data_source": "webcam",
+  "sources_included": [
+    "webcam"
+  ],
   "model_kind": "rf",
-  "trained_at": "2026-10-02T11:45:31.549368+00:00",
-  "num_classes": 37,
-  "total_samples": 13950,
-  "train_samples": 11160,
-  "test_samples": 2790,
-  "validation_accuracy": 0.9928,
+  "split_strategy": "block",
+  "trained_at": "2026-10-20T15:16:27.932663+00:00",
+  "num_classes": 29,
+  "total_samples": 6910,
+  "train_samples": 5528,
+  "test_samples": 1382,
+  "source_totals": {
+    "webcam": 6910
+  },
+  "validation_accuracy_real_labels_only": 0.8719,
+  "validation_accuracy_all_labels": 0.8719,
+  "needs_calibration": [
+    "PHRASE_NO",
+    "PHRASE_THANK_YOU",
+    "PHRASE_WASHROOM",
+    "PHRASE_WATER",
+    "PHRASE_YES",
+    "SPEAK"
+  ],
+  "labels_with_real_data": [
+    "A",
+    "B",
+    "C",
+    "CLEAR",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P",
+    "PHRASE_HELP",
+    "Q",
+    "R",
+    "S",
+    "SPACE",
+    "T",
+    "U",
+    "V",
+    "W",
+    "X",
+    "Y",
+    "Z"
+  ],
+  "per_label_composition": {
+    "A": {
+      "webcam": 200
+    },
+    "B": {
+      "webcam": 200
+    },
+    "C": {
+      "webcam": 150
+    },
+    "CLEAR": {
+      "webcam": 200
+    },
+    "D": {
+      "webcam": 200
+    },
+    "E": {
+      "webcam": 200
+    },
+    "F": {
+      "webcam": 200
+    },
+    "G": {
+      "webcam": 200
+    },
+    "H": {
+      "webcam": 200
+    },
+    "I": {
+      "webcam": 200
+    },
+    "J": {
+      "webcam": 200
+    },
+    "K": {
+      "webcam": 660
+    },
+    "L": {
+      "webcam": 200
+    },
+    "M": {
+      "webcam": 150
+    },
+    "N": {
+      "webcam": 200
+    },
+    "O": {
+      "webcam": 150
+    },
+    "P": {
+      "webcam": 150
+    },
+    "PHRASE_HELP": {
+      "webcam": 100
+    },
+    "Q": {
+      "webcam": 200
+    },
+    "R": {
+      "webcam": 400
+    },
+    "S": {
+      "webcam": 200
+    },
+    "SPACE": {
+      "webcam": 200
+    },
+    "T": {
+      "webcam": 200
+    },
+    "U": {
+      "webcam": 600
+    },
+    "V": {
+      "webcam": 400
+    },
+    "W": {
+      "webcam": 400
+    },
+    "X": {
+      "webcam": 200
+    },
+    "Y": {
+      "webcam": 150
+    },
+    "Z": {
+      "webcam": 200
+    }
+  },
   "samples_per_label": {
-    "A": 600,
-    "B": 450,
-    "BACKSPACE": 150,
-    "C": 450,
-    "CLEAR": 150,
-    "D": 450,
-    "DEL": 300,
-    "E": 450,
-    "F": 450,
-    "G": 450,
-    "H": 450,
-    "I": 450,
-    "J": 450,
-    "K": 450,
-    "L": 450,
-    "M": 450,
-    "N": 450,
-    "O": 450,
-    "P": 450,
-    "PHRASE_HELP": 150,
-    "PHRASE_NO": 150,
-    "PHRASE_THANK_YOU": 150,
-    "PHRASE_WASHROOM": 150,
-    "PHRASE_WATER": 150,
-    "PHRASE_YES": 150,
-    "Q": 450,
-    "R": 450,
-    "S": 450,
-    "SPACE": 450,
-    "SPEAK": 150,
-    "T": 450,
-    "U": 450,
-    "V": 450,
-    "W": 450,
-    "X": 450,
-    "Y": 450,
-    "Z": 450
+    "A": 200,
+    "B": 200,
+    "C": 150,
+    "CLEAR": 200,
+    "D": 200,
+    "E": 200,
+    "F": 200,
+    "G": 200,
+    "H": 200,
+    "I": 200,
+    "J": 200,
+    "K": 660,
+    "L": 200,
+    "M": 150,
+    "N": 200,
+    "O": 150,
+    "P": 150,
+    "PHRASE_HELP": 100,
+    "Q": 200,
+    "R": 400,
+    "S": 200,
+    "SPACE": 200,
+    "T": 200,
+    "U": 600,
+    "V": 400,
+    "W": 400,
+    "X": 200,
+    "Y": 150,
+    "Z": 200
   }
 }

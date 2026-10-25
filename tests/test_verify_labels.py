@@ -73,6 +73,14 @@ class TestLabelResult:
         assert "FAIL" in row
         assert "B" in row
 
+    def test_mark_fail_no_hand(self):
+        r = LabelResult("A")
+        r.mark_fail("NO_HAND")
+        assert r.outcome == "FAIL"
+        assert r.no_hand is True
+        assert r.misrecognised_as == "NO_HAND"
+        assert "no hand detected" in r.as_row().lower()
+
 
 # ---------------------------------------------------------------------------
 # VerificationSession state-machine tests
@@ -221,6 +229,16 @@ class TestSummaryAndOutput:
         lines = "\n".join(s.summary_lines())
         assert "PASS: 2" in lines
         assert "FAIL: 0" in lines
+
+    def test_summary_lines_separates_no_hand_from_misrecog(self):
+        s = VerificationSession(["A", "B", "C"], "ASL")
+        s.handle_key(KEY_Y)
+        s.handle_key(KEY_N, "NO_HAND")
+        s.handle_key(KEY_N, "Z")
+        text = "\n".join(s.summary_lines())
+        assert "misrecognised: 1" in text
+        assert "no hand: 1" in text
+        assert "NO_HAND (no hand detected)" in text
 
     def test_write_results_creates_file(self):
         with tempfile.TemporaryDirectory() as tmpdir:

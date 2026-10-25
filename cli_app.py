@@ -30,7 +30,8 @@ import os
 import cv2
 import numpy as np
 
-from src.landmark_utils import HandLandmarkExtractor
+from src.auto_typer import AutoTyper
+from src.landmark_utils import HandLandmarkExtractor, extract_feature_vector
 from src.predictor import GesturePredictor, ModelNotFoundError
 from src.text_buffer import TextBuffer
 from src.tts_engine import TTSEngine
@@ -122,6 +123,14 @@ def run_verify(language: str, camera_index: int, output_dir: str):
 
     smoothed_label = None
     confidence = 0.0
+    # Track the best prediction seen since the current label started.
+    # This prevents recording None/em-dash when the user presses a key
+    # before the predictor has seen enough frames to commit.
+    best_prediction_this_label = None   # best smoothed_label seen so far
+    best_confidence_this_label = 0.0
+    last_session_index = 0              # detect when the session advances
+    no_hand_frames = 0                  # count frames with no hand detected
+    total_frames = 0
 
     while not session.is_complete:
         ok, frame = cap.read()
@@ -137,9 +146,27 @@ def run_verify(language: str, camera_index: int, output_dir: str):
         frame_result = extractor.process_from_raw(frame, mp_raw)
         feature_vector = frame_result.feature_vector if frame_result else None
 
+        # Track no-hand frames for the result record
+        total_frames += 1
+        if feature_vector is None:
+            no_hand_frames += 1
+
         result = predictor.update(feature_vector)
         smoothed_label = result["smoothed_label"]
         confidence = result["confidence"]
+
+        # Update best prediction seen for the current label
+        if smoothed_label is not None and confidence > best_confidence_this_label:
+            best_prediction_this_label = smoothed_label
+            best_confidence_this_label = confidence
+
+        # Reset best-prediction tracker when session advances to a new label
+        if session._index != last_session_index:
+            best_prediction_this_label = None
+            best_confidence_this_label = 0.0
+            no_hand_frames = 0
+            total_frames = 0
+            last_session_index = session._index
 
         _draw_verify_hud(
             frame,
@@ -152,7 +179,17 @@ def run_verify(language: str, camera_index: int, output_dir: str):
 
         cv2.imshow("SignBridge — Verification", frame)
         key = cv2.waitKey(1) & 0xFF
-        session.handle_key(key, smoothed_label)
+
+        # Determine what to record as 'misrecognised_as':
+        # - Use best prediction seen during this label (not instantaneous)
+        # - If no prediction at all, distinguish no-hand from below-threshold
+        if no_hand_frames == total_frames and total_frames > 0:
+            # No hand was detected at all during this label
+            effective_prediction = "NO_HAND"
+        else:
+            effective_prediction = best_prediction_this_label  # may be None if below threshold
+
+        session.handle_key(key, effective_prediction)
 
     cap.release()
     cv2.destroyAllWindows()
@@ -181,6 +218,8 @@ def run(language: str, camera_index: int, tts_backend: str, target_language: str
     extractor = HandLandmarkExtractor()
     buffer = TextBuffer(auto_correct=True)
     tts = TTSEngine(backend=tts_backend)
+    needs_cal = set(predictor.metadata.get("needs_calibration", [])) if predictor and predictor.metadata else set()
+    typer = AutoTyper(text_buffer=buffer, needs_calibration=needs_cal)
 
     cap = cv2.VideoCapture(camera_index)
     if not cap.isOpened():
@@ -196,14 +235,17 @@ def run(language: str, camera_index: int, tts_backend: str, target_language: str
         frame = cv2.flip(frame, 1)
 
         mp_raw = extractor.process_raw(frame)
+        frame_result = extractor.process_from_raw(frame, mp_raw)
         frame = extractor.draw(frame, mp_raw)
-        frame_result = extractor.process(frame)
         feature_vector = frame_result.feature_vector if frame_result else None
 
         result = predictor.update(feature_vector)
+        auto_res = typer.process(result["smoothed_label"], result["confidence"])
+        result["progress"] = auto_res["progress"]
+        result["committed_label"] = auto_res["committed_label"]
+
         if result["committed_label"]:
             old_text = buffer.get_final_text()
-            buffer.handle_label(result["committed_label"])
             new_text = buffer.get_final_text()
 
             # CLI translation to terminal (can't draw Tamil/Hindi in OpenCV easily)

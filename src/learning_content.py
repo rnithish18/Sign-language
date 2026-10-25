@@ -47,8 +47,8 @@ LESSONS: Dict[str, List[dict]] = {
         {
             "id": "asl_controls",
             "title": "Lesson 6: Control Gestures",
-            "description": "Hands-free editing: space, backspace, clear, speak.",
-            "targets": ["SPACE", "BACKSPACE", "CLEAR", "SPEAK"],
+            "description": "Hands-free editing: space, del/backspace, clear, speak.",
+            "targets": ["SPACE", "DEL", "CLEAR", "SPEAK"],
         },
         {
             "id": "asl_word_hello",

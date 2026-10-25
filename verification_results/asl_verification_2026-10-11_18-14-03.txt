@@ -1,0 +1,43 @@
+SignBridge — ASL Label Verification
+Generated: 2026-10-11 18:14:03
+Total labels: 35  |  Tested: 35  |  PASS: 17  FAIL: 18 (misrecognised: 12, no hand: 6)  SKIP: 0
+
+Label                Result  Misrecognised as
+-------------------------------------------------------
+A                    PASS    misrecognised_as=—
+B                    FAIL    misrecognised_as=B
+C                    PASS    misrecognised_as=—
+D                    FAIL    misrecognised_as=Z
+E                    FAIL    misrecognised_as=M
+F                    PASS    misrecognised_as=—
+G                    FAIL    misrecognised_as=F
+H                    PASS    misrecognised_as=—
+I                    PASS    misrecognised_as=—
+J                    FAIL    misrecognised_as=I
+K                    PASS    misrecognised_as=—
+L                    FAIL    misrecognised_as=—
+M                    PASS    misrecognised_as=—
+N                    FAIL    misrecognised_as=M
+O                    PASS    misrecognised_as=—
+P                    PASS    misrecognised_as=—
+Q                    PASS    misrecognised_as=—
+R                    FAIL    misrecognised_as=—
+S                    FAIL    misrecognised_as=J
+T                    FAIL    misrecognised_as=M
+U                    FAIL    misrecognised_as=—
+V                    PASS    misrecognised_as=—
+W                    PASS    misrecognised_as=—
+X                    PASS    misrecognised_as=—
+Y                    PASS    misrecognised_as=—
+Z                    PASS    misrecognised_as=—
+CLEAR                PASS    misrecognised_as=—
+SPACE                PASS    misrecognised_as=—
+SPEAK                FAIL    misrecognised_as=Z
+PHRASE_HELP          FAIL    misrecognised_as=NO_HAND (no hand detected)
+PHRASE_NO            FAIL    misrecognised_as=NO_HAND (no hand detected)
+PHRASE_THANK_YOU     FAIL    misrecognised_as=NO_HAND (no hand detected)
+PHRASE_WASHROOM      FAIL    misrecognised_as=NO_HAND (no hand detected)
+PHRASE_WATER         FAIL    misrecognised_as=NO_HAND (no hand detected)
+PHRASE_YES           FAIL    misrecognised_as=NO_HAND (no hand detected)
+
+PASS rate (tested): 17/35 = 49%

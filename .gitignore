@@ -7,3 +7,10 @@ models/*.joblib
 data/learner_progress.json
 .DS_Store
 .venv_clean/
+*.bak
+*.old
+*.session_bak
+*.log
+diff_features.txt
+data/backup/
+

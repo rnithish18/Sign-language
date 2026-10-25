@@ -240,6 +240,49 @@ class HandLandmarkExtractor:
         self.close()
 
 
+def extract_feature_vector(
+    frame_bgr: np.ndarray,
+    extractor: "HandLandmarkExtractor",
+    mirror: bool = True,
+) -> "Optional[FrameResult]":
+    """
+    Canonical single entry point for BGR frame → 128-dim feature vector.
+
+    All three callers (data_collection.py, cli_app.py, app.py recv()) must go
+    through this function so that mirror, BGR→RGB conversion, and slot ordering
+    are always identical between training-data recording and inference.
+
+    Parameters
+    ----------
+    frame_bgr : np.ndarray
+        C-contiguous, writeable HxWx3 BGR uint8 array exactly as delivered by
+        cv2.VideoCapture.read() or av.VideoFrame.to_ndarray(format="bgr24")
+        *before* any flip.
+    extractor : HandLandmarkExtractor
+        Shared extractor instance; must already be initialised.
+    mirror : bool
+        True (default) = flip horizontally so the image is a selfie-view mirror.
+        Must be True for all webcam and webrtc sources.  Set False only for
+        static image imports (import_public_dataset) where frames are already
+        canonical.
+
+    Returns
+    -------
+    FrameResult or None
+        None if no hand is detected.
+    """
+    import cv2  # local import — keeps module importable without OpenCV in tests
+
+    if not frame_bgr.flags["C_CONTIGUOUS"] or not frame_bgr.flags.writeable:
+        frame_bgr = np.ascontiguousarray(frame_bgr)
+
+    if mirror:
+        frame_bgr = np.ascontiguousarray(frame_bgr[:, ::-1, :])
+
+    mp_raw = extractor.process_raw(frame_bgr)
+    return extractor.process_from_raw(frame_bgr, mp_raw)
+
+
 def normalize_landmarks(raw_landmarks: List[Tuple[float, float, float]]) -> np.ndarray:
     """
     Convert MediaPipe's 21 (x, y, z) landmarks into a translation- and
@@ -261,6 +304,23 @@ def normalize_landmarks(raw_landmarks: List[Tuple[float, float, float]]) -> np.n
     return normalized.flatten()
 
 
-def landmarks_to_csv_row(feature_vector: np.ndarray, label: str) -> List:
-    """Helper to build a CSV row: [label, f0, f1, ..., fN]."""
+def landmarks_to_csv_row(
+    feature_vector: np.ndarray,
+    label: str,
+    source: Optional[str] = None,
+    session_id: Optional[str] = None,
+) -> List:
+    """Build a CSV row.
+
+    Column order (when all fields present):
+        label, source, session_id, f0, ..., fN
+
+    Backward-compatible: if source is None, row is [label, f0, ..., fN].
+    If source is provided but session_id is None, row is [label, source, f0, ..., fN].
+    """
+    if source is not None and session_id is not None:
+        return [label, source, session_id] + feature_vector.tolist()
+    if source is not None:
+        return [label, source] + feature_vector.tolist()
     return [label] + feature_vector.tolist()
+

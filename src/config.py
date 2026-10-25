@@ -40,15 +40,22 @@ CONFIDENCE_THRESHOLD = 0.65        # predictions below this are shown as "..."
 PREDICTION_SMOOTHING_WINDOW = 8    # majority-vote over last N frames
 HOLD_FRAMES_TO_COMMIT = 12         # frames a sign must be held before it is typed
 COOLDOWN_FRAMES_AFTER_COMMIT = 10  # frames to ignore after committing a letter
+HOLD_SECONDS = 0.8                 # seconds a sign must be held to auto-type
+MIN_CONF = 0.80                    # minimum confidence required to accumulate hold
+HAND_LOST_TIMEOUT_SECONDS = 0.5    # seconds hand must be away before repeating same letter
+REPEAT_DELAY_SECONDS = 0.5         # alias for HAND_LOST_TIMEOUT_SECONDS
 
 # ---------------------------------------------------------------------------
 # Control gesture labels (must also exist as trainable classes)
 # ---------------------------------------------------------------------------
 GESTURE_SPACE = "SPACE"
-GESTURE_BACKSPACE = "BACKSPACE"
+GESTURE_DEL = "DEL"
+GESTURE_BACKSPACE = "BACKSPACE"  # Alias kept for backward-compatibility with UI/tests
 GESTURE_CLEAR = "CLEAR"
 GESTURE_SPEAK = "SPEAK"
-CONTROL_GESTURES = {GESTURE_SPACE, GESTURE_BACKSPACE, GESTURE_CLEAR, GESTURE_SPEAK}
+# BACKSPACE is dropped as a separate label because DEL has real public data and maps
+# to backspace in text_buffer.py.
+CONTROL_GESTURES = {GESTURE_SPACE, GESTURE_CLEAR, GESTURE_SPEAK}
 
 # ---------------------------------------------------------------------------
 # Phrase shortcuts — whole-hand gestures that commit full phrases as one unit.
@@ -108,3 +115,35 @@ def dataset_csv_path(language: str) -> str:
 def metadata_path(language: str) -> str:
     """JSON sidecar written by train_model.py alongside the .joblib model."""
     return os.path.join(MODELS_DIR, f"signbridge_{language.lower()}_metadata.json")
+
+
+# ---------------------------------------------------------------------------
+# UI Theme Colors (Mockup Palette)
+# ---------------------------------------------------------------------------
+THEME_NAVY = "#0b0f19"
+THEME_NAVY_CARD = "#121626"
+THEME_NAVY_CARD_SECONDARY = "#161c2d"
+THEME_NAVY_BORDER = "#1f273f"
+THEME_PURPLE = "#8b5cf6"
+THEME_PURPLE_DARK = "#6d28d9"
+THEME_PURPLE_GRADIENT = "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)"
+THEME_ORANGE = "#f97316"
+THEME_ORANGE_GRADIENT = "linear-gradient(135deg, #f97316 0%, #ec4899 100%)"
+THEME_BLUE = "#3b82f6"
+THEME_BLUE_GRADIENT = "linear-gradient(135deg, #2563eb 0%, #38bdf8 100%)"
+THEME_CYAN = "#06b6d4"
+THEME_GREEN = "#10b981"
+THEME_RED = "#ef4444"
+THEME_TEXT_PRIMARY = "#ffffff"
+THEME_TEXT_MUTED = "#94a3b8"
+
+# Phrase icons for UI chips
+PHRASE_ICONS = {
+    "PHRASE_HELP": "✋",
+    "PHRASE_THANK_YOU": "😊",
+    "PHRASE_WATER": "💧",
+    "PHRASE_WASHROOM": "🚻",
+    "PHRASE_YES": "✔️",
+    "PHRASE_NO": "✖️",
+}
+

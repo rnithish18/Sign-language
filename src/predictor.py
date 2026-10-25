@@ -36,9 +36,15 @@ class ModelNotFoundError(Exception):
 
 
 class GesturePredictor:
-    def __init__(self, language: str):
+    def __init__(
+        self,
+        language: str,
+        model_path_override: Optional[str] = None,
+        encoder_path_override: Optional[str] = None,
+    ):
         self.language = language
-        mpath, lpath = model_path(language), label_encoder_path(language)
+        mpath = model_path_override if model_path_override is not None else model_path(language)
+        lpath = encoder_path_override if encoder_path_override is not None else label_encoder_path(language)
         if not (os.path.exists(mpath) and os.path.exists(lpath)):
             raise ModelNotFoundError(
                 f"No trained model for '{language}'. Run train_model.py first.\n"

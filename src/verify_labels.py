@@ -34,21 +34,34 @@ class LabelResult:
         self.label = label
         self.outcome: Optional[str] = None        # "PASS" | "FAIL" | "SKIP"
         self.misrecognised_as: Optional[str] = None
+        self.no_hand: bool = False
 
     def mark_pass(self):
         self.outcome = "PASS"
         self.misrecognised_as = None
+        self.no_hand = False
 
     def mark_fail(self, prediction: Optional[str] = None):
         self.outcome = "FAIL"
-        self.misrecognised_as = prediction  # None if no hand / unclear
+        if prediction == "NO_HAND":
+            self.no_hand = True
+            self.misrecognised_as = "NO_HAND"
+        else:
+            self.no_hand = False
+            self.misrecognised_as = prediction  # None if unclear / below threshold
 
     def mark_skip(self):
         self.outcome = "SKIP"
         self.misrecognised_as = None
+        self.no_hand = False
 
     def as_row(self) -> str:
-        mis = self.misrecognised_as or "—"
+        if self.no_hand or self.misrecognised_as == "NO_HAND":
+            mis = "NO_HAND (no hand detected)"
+        elif self.misrecognised_as:
+            mis = self.misrecognised_as
+        else:
+            mis = "—"
         return f"{self.label:<20} {self.outcome or 'PENDING':<6}  misrecognised_as={mis}"
 
 
@@ -153,12 +166,14 @@ class VerificationSession:
         passed = sum(1 for r in tested if r.outcome == "PASS")
         failed = sum(1 for r in tested if r.outcome == "FAIL")
         skipped = sum(1 for r in tested if r.outcome == "SKIP")
+        no_hand = sum(1 for r in tested if r.no_hand or r.misrecognised_as == "NO_HAND")
+        misrecog = sum(1 for r in tested if r.outcome == "FAIL" and not (r.no_hand or r.misrecognised_as == "NO_HAND"))
 
         lines = [
             f"SignBridge — {self.language} Label Verification",
             f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
             f"Total labels: {len(self.labels)}  |  Tested: {len(tested)}"
-            f"  |  PASS: {passed}  FAIL: {failed}  SKIP: {skipped}",
+            f"  |  PASS: {passed}  FAIL: {failed} (misrecognised: {misrecog}, no hand: {no_hand})  SKIP: {skipped}",
             "",
             f"{'Label':<20} {'Result':<6}  Misrecognised as",
             "-" * 55,

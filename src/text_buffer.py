@@ -63,7 +63,10 @@ class TextBuffer:
         # ── Control gestures ─────────────────────────────────────────────────
         if label == GESTURE_SPACE:
             self._finish_word()
-        elif label == GESTURE_BACKSPACE:
+        elif label in (GESTURE_BACKSPACE, "DEL"):
+            # DEL (Kaggle gesture with real data) maps to the same delete action
+            # as BACKSPACE. They are kept as distinct model labels; both trigger
+            # deletion of the last character / last finished word.
             self._backspace()
         elif label == GESTURE_CLEAR:
             self.clear()

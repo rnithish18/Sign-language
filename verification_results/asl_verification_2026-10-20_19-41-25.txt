@@ -1,0 +1,43 @@
+SignBridge — ASL Label Verification
+Generated: 2026-10-20 19:41:25
+Total labels: 35  |  Tested: 35  |  PASS: 6  FAIL: 22 (misrecognised: 22, no hand: 0)  SKIP: 7
+
+Label                Result  Misrecognised as
+-------------------------------------------------------
+A                    FAIL    misrecognised_as=—
+B                    FAIL    misrecognised_as=—
+C                    PASS    misrecognised_as=—
+D                    FAIL    misrecognised_as=—
+E                    FAIL    misrecognised_as=M
+F                    FAIL    misrecognised_as=M
+G                    FAIL    misrecognised_as=P
+H                    FAIL    misrecognised_as=P
+I                    FAIL    misrecognised_as=J
+J                    PASS    misrecognised_as=—
+K                    FAIL    misrecognised_as=—
+L                    FAIL    misrecognised_as=—
+M                    PASS    misrecognised_as=—
+N                    FAIL    misrecognised_as=M
+O                    PASS    misrecognised_as=—
+P                    PASS    misrecognised_as=—
+Q                    FAIL    misrecognised_as=—
+R                    FAIL    misrecognised_as=—
+S                    FAIL    misrecognised_as=—
+T                    FAIL    misrecognised_as=—
+U                    FAIL    misrecognised_as=—
+V                    FAIL    misrecognised_as=—
+W                    FAIL    misrecognised_as=—
+X                    FAIL    misrecognised_as=—
+Y                    PASS    misrecognised_as=—
+Z                    FAIL    misrecognised_as=—
+CLEAR                FAIL    misrecognised_as=M
+SPACE                FAIL    misrecognised_as=J
+SPEAK                SKIP    misrecognised_as=—
+PHRASE_HELP          SKIP    misrecognised_as=—
+PHRASE_NO            SKIP    misrecognised_as=—
+PHRASE_THANK_YOU     SKIP    misrecognised_as=—
+PHRASE_WASHROOM      SKIP    misrecognised_as=—
+PHRASE_WATER         SKIP    misrecognised_as=—
+PHRASE_YES           SKIP    misrecognised_as=—
+
+PASS rate (tested): 6/35 = 17%
