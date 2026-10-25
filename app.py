@@ -374,14 +374,29 @@ div:has(> .quick-actions-marker) + div [data-testid="column"] button:hover {
 """, unsafe_allow_html=True)
 
 def _get_rtc_configuration() -> RTCConfiguration:
-    """Return reliable public STUN servers for WebRTC NAT traversal."""
+    """Return reliable public STUN and TURN servers for WebRTC NAT traversal."""
     return RTCConfiguration(
         {
             "iceServers": [
                 {"urls": ["stun:stun.l.google.com:19302"]},
                 {"urls": ["stun:stun1.l.google.com:19302"]},
                 {"urls": ["stun:stun2.l.google.com:19302"]},
-                {"urls": ["stun:stun.cloudflare.com:3478"]},
+                {"urls": ["stun:openrelay.metered.ca:80"]},
+                {
+                    "urls": ["turn:openrelay.metered.ca:80"],
+                    "username": "openrelayproject",
+                    "credential": "openrelayproject",
+                },
+                {
+                    "urls": ["turn:openrelay.metered.ca:443"],
+                    "username": "openrelayproject",
+                    "credential": "openrelayproject",
+                },
+                {
+                    "urls": ["turn:openrelay.metered.ca:443?transport=tcp"],
+                    "username": "openrelayproject",
+                    "credential": "openrelayproject",
+                },
             ]
         }
     )
