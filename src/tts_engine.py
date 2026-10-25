@@ -30,10 +30,14 @@ class TTSEngine:
             self._init_offline()
 
     def _init_offline(self):
-        import pyttsx3
-
-        self._offline_engine = pyttsx3.init()
-        self._offline_engine.setProperty("rate", self.rate)
+        try:
+            import pyttsx3
+            self._offline_engine = pyttsx3.init()
+            self._offline_engine.setProperty("rate", self.rate)
+        except Exception as exc:
+            logger.warning("pyttsx3 init failed (%s), falling back to online backend", exc)
+            self.backend = "online"
+            self._offline_engine = None
 
     def speak(self, text: str, blocking: bool = False, lang: str = "en") -> None:
         """Speak text immediately. Non-English always routes through gTTS (online)."""
