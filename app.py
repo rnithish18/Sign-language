@@ -376,11 +376,33 @@ div:has(> .quick-actions-marker) + div [data-testid="column"] button:hover {
 
 def _get_rtc_configuration() -> RTCConfiguration:
     """Return WebRTC configuration with TURN support if secrets are configured, or Google STUN fallback."""
-    secrets = {}
+    secrets = dict(os.environ)
     try:
-        secrets = dict(st.secrets)
+        secrets.update(dict(st.secrets))
     except Exception:
-        secrets = {}
+        pass
+
+    # 1. Direct Metered credentials (username & password)
+    try:
+        if "METERED_USERNAME" in secrets and "METERED_PASSWORD" in secrets:
+            u = str(secrets["METERED_USERNAME"]).strip()
+            p = str(secrets["METERED_PASSWORD"]).strip()
+            return RTCConfiguration({
+                "iceServers": [
+                    {"urls": ["stun:stun.relay.metered.ca:80"]},
+                    {
+                        "urls": [
+                            "turn:global.relay.metered.ca:80",
+                            "turn:global.relay.metered.ca:443",
+                            "turn:global.relay.metered.ca:443?transport=tcp",
+                        ],
+                        "username": u,
+                        "credential": p,
+                    },
+                ]
+            })
+    except Exception:
+        pass
 
     # 1. Direct ice_servers list in st.secrets
     try:
