@@ -374,31 +374,14 @@ div:has(> .quick-actions-marker) + div [data-testid="column"] button:hover {
 """, unsafe_allow_html=True)
 
 def _get_rtc_configuration() -> RTCConfiguration:
-    """Return reliable public STUN and TURN servers for WebRTC NAT traversal."""
+    """Return WebRTC configuration, using custom ICE servers from secrets if provided, or Google STUN."""
+    try:
+        if "ice_servers" in st.secrets:
+            return RTCConfiguration({"iceServers": st.secrets["ice_servers"]})
+    except Exception:
+        pass
     return RTCConfiguration(
-        {
-            "iceServers": [
-                {"urls": ["stun:stun.l.google.com:19302"]},
-                {"urls": ["stun:stun1.l.google.com:19302"]},
-                {"urls": ["stun:stun2.l.google.com:19302"]},
-                {"urls": ["stun:openrelay.metered.ca:80"]},
-                {
-                    "urls": ["turn:openrelay.metered.ca:80"],
-                    "username": "openrelayproject",
-                    "credential": "openrelayproject",
-                },
-                {
-                    "urls": ["turn:openrelay.metered.ca:443"],
-                    "username": "openrelayproject",
-                    "credential": "openrelayproject",
-                },
-                {
-                    "urls": ["turn:openrelay.metered.ca:443?transport=tcp"],
-                    "username": "openrelayproject",
-                    "credential": "openrelayproject",
-                },
-            ]
-        }
+        {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
     )
 
 
