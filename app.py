@@ -640,6 +640,10 @@ class SignProcessor:
 
         try:
             img = frame.to_ndarray(format="bgr24")
+            h, w = img.shape[:2]
+            if w > 640:
+                scale = 640.0 / w
+                img = cv2.resize(img, (640, int(h * scale)), interpolation=cv2.INTER_AREA)
             img = np.ascontiguousarray(img)
             if not img.flags.writeable:
                 img = img.copy()

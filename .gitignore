@@ -18,3 +18,5 @@ data/learner_progress.json
 diff_features.txt
 data/backup/
 
+
+.streamlit/secrets.toml
