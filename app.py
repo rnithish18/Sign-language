@@ -644,13 +644,13 @@ class SignProcessor:
             if not img.flags.writeable:
                 img = img.copy()
 
-            # ── Canonical pipeline (mirror=True matches data_collection.py) ─
-            # extract_feature_vector handles: mirror flip, BGR→RGB, process_raw,
-            # process_from_raw.  The raw MediaPipe result is returned alongside
-            # the FrameResult so we can draw the skeleton separately.
-            frame_result = extract_feature_vector(img, self.extractor, mirror=True)
-            feature_vector = frame_result.feature_vector if frame_result else None
+            # ── Canonical pipeline: mirror flip, process_raw ONCE, then extract & draw ──
+            img_mirrored = np.ascontiguousarray(img[:, ::-1, :])
+            mp_raw = self.extractor.process_raw(img_mirrored)
+            frame_result = self.extractor.process_from_raw(img_mirrored, mp_raw)
+            img_draw = self.extractor.draw(img_mirrored, mp_raw)
 
+            feature_vector = frame_result.feature_vector if frame_result else None
             hand_detected = feature_vector is not None
 
             # Rebuild handedness string before taking the lock
@@ -661,14 +661,6 @@ class SignProcessor:
                     handedness_str = "Left + right"
                 elif labels:
                     handedness_str = labels[0]
-
-            # ── Draw skeleton on mirrored copy ───────────────────────────────
-            # We need the raw mp_result for drawing.  Re-run process_raw on the
-            # already-mirrored frame (extract_feature_vector has already flipped
-            # it internally, so we call process_raw on the *mirrored* version).
-            img_mirrored = np.ascontiguousarray(img[:, ::-1, :])
-            mp_raw_for_draw = self.extractor.process_raw(img_mirrored)
-            img_draw = self.extractor.draw(img_mirrored, mp_raw_for_draw)
 
             if self.predictor is None:
                 self._write_state(
@@ -1154,7 +1146,14 @@ def render_translate_mode():
             mode=WebRtcMode.SENDRECV,
             rtc_configuration=RTC_CONFIGURATION,
             video_processor_factory=_make_processor_translate,
-            media_stream_constraints={"video": True, "audio": False},
+            media_stream_constraints={
+                "video": {
+                    "width": {"ideal": 640, "max": 640},
+                    "height": {"ideal": 480, "max": 480},
+                    "frameRate": {"ideal": 15, "max": 20},
+                },
+                "audio": False,
+            },
             async_processing=True,
         )
 
@@ -1552,7 +1551,14 @@ def render_learn_mode():
             mode=WebRtcMode.SENDRECV,
             rtc_configuration=RTC_CONFIGURATION,
             video_processor_factory=_make_processor_learn,
-            media_stream_constraints={"video": True, "audio": False},
+            media_stream_constraints={
+                "video": {
+                    "width": {"ideal": 640, "max": 640},
+                    "height": {"ideal": 480, "max": 480},
+                    "frameRate": {"ideal": 15, "max": 20},
+                },
+                "audio": False,
+            },
             async_processing=True,
         )
 
