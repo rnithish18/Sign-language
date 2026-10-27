@@ -652,7 +652,7 @@ class SignProcessor:
             img_mirrored = np.ascontiguousarray(img[:, ::-1, :])
             mp_raw = self.extractor.process_raw(img_mirrored)
             frame_result = self.extractor.process_from_raw(img_mirrored, mp_raw)
-            img_draw = self.extractor.draw(img_mirrored, mp_raw)
+            img_draw = self.extractor.draw(img_mirrored.copy(), mp_raw)
 
             feature_vector = frame_result.feature_vector if frame_result else None
             hand_detected = feature_vector is not None
