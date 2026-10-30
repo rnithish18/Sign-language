@@ -138,6 +138,21 @@ THEME_TEXT_PRIMARY = "#ffffff"
 THEME_TEXT_MUTED = "#94a3b8"
 
 # Phrase icons for UI chips
+# ---------------------------------------------------------------------------
+# Startup diagnostics (Step 1 — set to True temporarily, never commit as True)
+# ---------------------------------------------------------------------------
+DEBUG_STARTUP = False   # When True: prints timing to stderr and signbridge_startup.log
+
+# ---------------------------------------------------------------------------
+# WebRTC video constraints (step 2b)
+# ---------------------------------------------------------------------------
+WEBRTC_VIDEO_WIDTH_IDEAL  = 640
+WEBRTC_VIDEO_WIDTH_MAX    = 640
+WEBRTC_VIDEO_HEIGHT_IDEAL = 480
+WEBRTC_VIDEO_HEIGHT_MAX   = 480
+WEBRTC_FRAMERATE_IDEAL    = 15
+WEBRTC_FRAMERATE_MAX      = 20
+
 PHRASE_ICONS = {
     "PHRASE_HELP": "✋",
     "PHRASE_THANK_YOU": "😊",

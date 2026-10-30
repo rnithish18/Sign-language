@@ -56,6 +56,10 @@ from src.config import (
     THEME_NAVY, THEME_NAVY_CARD, THEME_NAVY_BORDER, THEME_PURPLE, THEME_ORANGE,
     THEME_BLUE, THEME_CYAN, THEME_GREEN, THEME_RED, THEME_TEXT_PRIMARY, THEME_TEXT_MUTED,
     PHRASE_ICONS, HOLD_SECONDS, MIN_CONF, REPEAT_DELAY_SECONDS,
+    DEBUG_STARTUP,
+    WEBRTC_VIDEO_WIDTH_IDEAL, WEBRTC_VIDEO_WIDTH_MAX,
+    WEBRTC_VIDEO_HEIGHT_IDEAL, WEBRTC_VIDEO_HEIGHT_MAX,
+    WEBRTC_FRAMERATE_IDEAL, WEBRTC_FRAMERATE_MAX,
 )
 from src.landmark_utils import HandLandmarkExtractor, extract_feature_vector
 from src.learning_mode import LessonSession, build_lesson_menu
@@ -74,6 +78,24 @@ from src.ui_helpers import (
 )
 from utils.progress_store import ProgressStore
 from utils.user_profiles import UserProfileManager, sanitize_username, validate_username
+
+# ---------------------------------------------------------------------------
+# Startup timing helper (active only when DEBUG_STARTUP=True in config.py)
+# ---------------------------------------------------------------------------
+_STARTUP_LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "signbridge_startup.log")
+_sb_log_inited = False
+
+def _sb_log(msg: str) -> None:
+    """Write a timestamped startup-timing message to stderr and signbridge_startup.log."""
+    import sys
+    global _sb_log_inited
+    ts = f"{time.perf_counter():.3f}"
+    line = f"[{ts}] {msg}"
+    print(line, file=sys.stderr, flush=True)
+    mode = "a" if _sb_log_inited else "w"
+    with open(_STARTUP_LOG_PATH, mode, encoding="utf-8") as _f:
+        _f.write(line + "\n")
+    _sb_log_inited = True
 
 # ---------------------------------------------------------------------------
 # Page config + global CSS (dark theme, large text, high contrast)
@@ -465,7 +487,29 @@ def _get_rtc_configuration() -> RTCConfiguration:
     except Exception as exc:
         logging.warning("Twilio TURN credentials fetch failed: %s", exc)
 
-    # 4. Fallback: Google public STUN
+    # 4. Fallback: Google public STUN (when reachable), or empty iceServers on localhost/offline
+    try:
+        srv_addr = str(st.get_option("server.address") or "").lower()
+    except Exception:
+        srv_addr = ""
+    is_localhost = srv_addr in ("localhost", "127.0.0.1", "::1") or os.environ.get("SIGNBRIDGE_LOCAL") == "1"
+
+    def _is_stun_reachable(host="stun.l.google.com", port=19302, timeout=0.5) -> bool:
+        try:
+            import socket
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.settimeout(timeout)
+            pkt = b"\x00\x01\x00\x00!\x12\xa4B" + b"\x00" * 12
+            s.sendto(pkt, (host, port))
+            data, _ = s.recvfrom(256)
+            s.close()
+            return len(data) > 0
+        except Exception:
+            return False
+
+    if is_localhost or not _is_stun_reachable():
+        return RTCConfiguration({"iceServers": []})
+
     return RTCConfiguration(
         {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
     )
@@ -543,14 +587,21 @@ class SignProcessor:
 
     def __init__(self, language: str, mode: str,
                  lesson_session: Optional[LessonSession] = None):
+        _t0_init = time.perf_counter()
         self.language = language
         self.mode = mode
         self.lesson_session = lesson_session
+        _t1 = time.perf_counter()
         self.extractor = HandLandmarkExtractor()
+        _t2 = time.perf_counter()
         try:
             self.predictor: Optional[GesturePredictor] = GesturePredictor(language)
         except ModelNotFoundError:
             self.predictor = None
+        _t3 = time.perf_counter()
+        if DEBUG_STARTUP:
+            _sb_log(f"[STARTUP] SignProcessor.__init__: extractor={(_t2-_t1)*1000:.0f}ms  "
+                    f"predictor={(_t3-_t2)*1000:.0f}ms  total={(_t3-_t0_init)*1000:.0f}ms")
 
         # ── Lock-protected state (written by background thread, read by main thread) ──
         self._lock = threading.Lock()
@@ -566,6 +617,8 @@ class SignProcessor:
             repeat_delay_seconds=REPEAT_DELAY_SECONDS,
             needs_calibration=needs_cal,
         )
+        self._frame_count: int = 0
+        self._last_result: Optional[dict] = None
         self._state: dict = {
             "smoothed_label": None,
             "confidence": 0.0,
@@ -626,6 +679,19 @@ class SignProcessor:
 
     def recv(self, frame: av.VideoFrame) -> av.VideoFrame:
         import traceback, logging, os
+        _recv_t0 = time.perf_counter() if DEBUG_STARTUP else 0.0
+        if DEBUG_STARTUP:
+            if not hasattr(self, '_recv_count'):
+                self._recv_count = 0
+                self._recv_t_first = _recv_t0
+                self._recv_t_prev  = _recv_t0
+            self._recv_count += 1
+            if self._recv_count <= 10:
+                gap = (_recv_t0 - self._recv_t_prev) * 1000
+                since_start = (_recv_t0 - self._recv_t_first) * 1000
+                _sb_log(f"[STARTUP] recv #{self._recv_count}: gap={gap:.1f}ms  "
+                        f"since_first={since_start:.1f}ms")
+            self._recv_t_prev = _recv_t0
 
         # ── Debug log setup ─────────────────────────────────────────────────
         _log = None
@@ -676,7 +742,15 @@ class SignProcessor:
                 out_frame.time_base = frame.time_base
                 return out_frame
 
-            result = self.predictor.update(feature_vector)
+            self._frame_count += 1
+            if feature_vector is None:
+                result = self.predictor.update(None)
+                self._last_result = result
+            elif self._frame_count % 2 == 1 or self._last_result is None:
+                result = self.predictor.update(feature_vector)
+                self._last_result = result
+            else:
+                result = self._last_result
 
             # Auto-typer integration: processes predictions with 0.8s hold and repeat lockout
             auto_res = self.auto_typer.process(
@@ -1145,6 +1219,9 @@ def render_translate_mode():
     with col_cam:
         cam_top_spot = st.empty()
 
+        if DEBUG_STARTUP:
+            _sb_log(f"[STARTUP] webrtc_streamer() called, "
+                    f"RTC ice_servers={getattr(RTC_CONFIGURATION, 'ice_servers', '?')}")
         ctx = webrtc_streamer(
             key="signbridge-translate",
             mode=WebRtcMode.SENDRECV,
@@ -1152,9 +1229,9 @@ def render_translate_mode():
             video_processor_factory=_make_processor_translate,
             media_stream_constraints={
                 "video": {
-                    "width": {"ideal": 640, "max": 640},
-                    "height": {"ideal": 480, "max": 480},
-                    "frameRate": {"ideal": 15, "max": 20},
+                    "width":     {"ideal": WEBRTC_VIDEO_WIDTH_IDEAL,  "max": WEBRTC_VIDEO_WIDTH_MAX},
+                    "height":    {"ideal": WEBRTC_VIDEO_HEIGHT_IDEAL, "max": WEBRTC_VIDEO_HEIGHT_MAX},
+                    "frameRate": {"ideal": WEBRTC_FRAMERATE_IDEAL,   "max": WEBRTC_FRAMERATE_MAX},
                 },
                 "audio": False,
             },

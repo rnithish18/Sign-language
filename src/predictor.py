@@ -51,6 +51,8 @@ class GesturePredictor:
                 f"Expected: {mpath}"
             )
         self.clf = joblib.load(mpath)
+        if hasattr(self.clf, "n_jobs"):
+            self.clf.n_jobs = 1
         self.encoder = joblib.load(lpath)
 
         # Load metadata sidecar (written by train_model.py). Backward-compat:
